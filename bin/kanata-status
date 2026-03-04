@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Kanata status helper script
+# Shows current kanata status
+
+CONFIG_FILE="${KANATA_CONFIG_FILE:-${HOME}/.config/kanata/kanata.kbd}"
+PID_FILE="${KANATA_PID_FILE:-/tmp/kanata.pid}"
+ERROR_LOG="${KANATA_ERR_LOG:-/tmp/kanata.err.log}"
+
+RUNNING=false
+CURRENT_PID=""
+PROCESS_START_EPOCH=""
+
+echo "=== Kanata Status ==="
+echo
+
+# Check process status
+echo "Process:"
+if pgrep -x kanata >/dev/null 2>&1; then
+  RUNNING=true
+  echo "  ✅ Running"
+  ps aux | grep -i kanata | grep -v grep | grep -v kanata-status | sed 's/^/     /'
+else
+  echo "  ❌ Not running"
+fi
+echo
+
+# Check config file
+echo "Config:"
+if [ -f "$CONFIG_FILE" ]; then
+  echo "  ✅ $CONFIG_FILE"
+else
+  echo "  ❌ Not found: $CONFIG_FILE"
+fi
+echo
+
+# Check pid file
+echo "PID file:"
+if [ -f "$PID_FILE" ]; then
+  PID_VALUE="$(cat "$PID_FILE" 2>/dev/null || true)"
+  if [ -n "$PID_VALUE" ] && ps -p "$PID_VALUE" >/dev/null 2>&1; then
+    CURRENT_PID="$PID_VALUE"
+    echo "  ✅ $PID_FILE (PID: $PID_VALUE)"
+  else
+    echo "  ⚠️  $PID_FILE (stale)"
+  fi
+else
+  echo "  ❌ Not found: $PID_FILE"
+fi
+echo
+
+echo "Note: Kanata is started manually with sudo."
+echo
+
+# Check logs
+if [ -n "$CURRENT_PID" ]; then
+  PROCESS_START_RAW="$(ps -p "$CURRENT_PID" -o lstart= 2>/dev/null | sed 's/^ *//')"
+  if [ -n "$PROCESS_START_RAW" ]; then
+    PROCESS_START_EPOCH="$(date -j -f "%a %b %e %T %Y" "$PROCESS_START_RAW" +%s 2>/dev/null || true)"
+  fi
+fi
+
+if [ -f "$ERROR_LOG" ] && [ -s "$ERROR_LOG" ]; then
+  ERROR_LOG_MTIME="$(stat -f %m "$ERROR_LOG" 2>/dev/null || true)"
+
+  if [ "$RUNNING" = true ] && [ -n "$PROCESS_START_EPOCH" ] && [ -n "$ERROR_LOG_MTIME" ] && [ "$ERROR_LOG_MTIME" -lt "$PROCESS_START_EPOCH" ]; then
+    echo "Error log: no new errors since current start"
+  else
+    RECENT_ERRORS="$(tail -20 "$ERROR_LOG" 2>/dev/null || true)"
+    echo "Recent errors (last 3 lines):"
+    tail -3 "$ERROR_LOG" | sed 's/^/  /'
+
+    if printf '%s\n' "$RECENT_ERRORS" | grep -qiE 'IOHIDDeviceOpen error: .*USB Receiver'; then
+      echo
+      echo "Note: 'USB Receiver' errors usually come from external wireless receivers."
+      echo "      If Kanata is configured for built-in keyboard only, this can be ignored."
+    fi
+  fi
+else
+  echo "Error log: (empty or not found)"
+fi

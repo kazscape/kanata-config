@@ -1,7 +1,6 @@
 ;; kanata.kbd (public template)
 ;; Target environment:
 ;; - macOS
-;; - Apple Internal Keyboard + HHKB Studio (and similar)
 ;; - GACS Home Row Mods
 ;;
 ;; Notes:

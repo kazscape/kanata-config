@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Kanata stop helper script
+# Stops manually started kanata process
+
+PID_FILE="${KANATA_PID_FILE:-/tmp/kanata.pid}"
+
+echo "Stopping Kanata..."
+
+if ! sudo -v; then
+  echo "❌ sudo authentication failed"
+  exit 1
+fi
+
+STOPPED=false
+
+# Try pid file first
+if [ -f "$PID_FILE" ]; then
+  KANATA_PID="$(cat "$PID_FILE" 2>/dev/null || true)"
+  if [ -n "$KANATA_PID" ] && ps -p "$KANATA_PID" >/dev/null 2>&1; then
+    echo "Stopping PID $KANATA_PID..."
+    sudo kill "$KANATA_PID" >/dev/null 2>&1 || true
+    sleep 1
+    if ps -p "$KANATA_PID" >/dev/null 2>&1; then
+      sudo kill -9 "$KANATA_PID" >/dev/null 2>&1 || true
+      sleep 1
+    fi
+    STOPPED=true
+  fi
+fi
+
+# Fallback: kill remaining kanata processes
+if pgrep -x kanata >/dev/null 2>&1; then
+  echo "Stopping remaining kanata processes..."
+  sudo pkill -x kanata >/dev/null 2>&1 || true
+  sleep 1
+  if pgrep -x kanata >/dev/null 2>&1; then
+    sudo pkill -9 -x kanata >/dev/null 2>&1 || true
+    sleep 1
+  fi
+  STOPPED=true
+fi
+
+rm -f "$PID_FILE"
+
+# Final verification
+if pgrep -x kanata >/dev/null 2>&1; then
+  echo "⚠️  ERROR: Kanata processes are still running!"
+  echo "Try running: pkill -9 -x kanata"
+  ps aux | grep -i kanata | grep -v grep | sed 's/^/  /'
+  exit 1
+else
+  if [ "$STOPPED" = true ]; then
+    echo "✅ Kanata stopped successfully"
+  else
+    echo "ℹ️  Kanata is not running"
+  fi
+fi
