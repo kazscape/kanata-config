@@ -1,0 +1,147 @@
+;; kanata.kbd (public template)
+;; Target environment:
+;; - macOS
+;; - Apple Internal Keyboard + HHKB Studio (and similar)
+;; - GACS Home Row Mods
+;;
+;; Notes:
+;; - This file is device-id agnostic by default.
+;; - If you want to restrict to specific keyboards, uncomment and fill
+;;   macos-dev-names-include in defcfg.
+
+(defcfg
+  ;; Optional: Restrict kanata to specific keyboard devices on macOS.
+  ;; Get IDs with: kanata --list-devices
+  ;;
+  ;; macos-dev-names-include (
+  ;;   "0xYOUR_DEVICE_ID_1"
+  ;;   "0xYOUR_DEVICE_ID_2"
+  ;; )
+
+  ;; Process keys not defined in defsrc to ensure consistent tap-hold behavior.
+  process-unmapped-keys yes
+)
+
+;; =========================
+;; Physical source layout (US ANSI-like)
+;; =========================
+(defsrc
+  esc    f1    f2    f3    f4    f5    f6    f7    f8    f9    f10   f11   f12
+         1     2     3     4     5     6     7     8     9     0     -     =     bspc
+  tab    q     w     e     r     t     y     u     i     o     p     [     ]     \
+  caps   a     s     d     f     g     h     j     k     l     ;     apo   ret
+  lsft   z     x     c     v     b     n     m     ,     .     /     rsft
+         lctl  lalt  lmet        spc               rmet  ralt
+)
+
+;; =========================
+;; Timing configuration (ms)
+;; =========================
+(defvar
+  tap-time 250
+  hold-time 280
+  hrm-hold-time 200
+)
+
+;; =========================
+;; Tap trigger key sets
+;; =========================
+(defvar
+  left-hand-keys (
+    q w e r t
+    a s d f g
+    z x c v b
+    spc ret bspc
+  )
+
+  left-hand-keys-romaji (
+    q w e r t
+    a s d f g
+    z x c v b
+    u i o
+    spc ret bspc
+  )
+
+  right-hand-keys (
+    y u i o p
+    j k l ; h
+    n m , . /
+    spc ret bspc
+  )
+)
+
+;; =========================
+;; Home Row Mods (GACS)
+;; =========================
+(defalias
+  ;; Left hand
+  A_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time a lmet $left-hand-keys)
+  S_ALT (tap-hold-tap-keys $tap-time $hrm-hold-time s lalt $left-hand-keys-romaji)
+  D_CTL (tap-hold-release-keys $tap-time $hrm-hold-time d lctl $left-hand-keys)
+  F_SFT (tap-hold-tap-keys $tap-time $hrm-hold-time f lsft $left-hand-keys)
+
+  ;; Right hand
+  J_SFT (tap-hold-tap-keys $tap-time $hrm-hold-time j rsft $right-hand-keys)
+  K_CTL (tap-hold-release-keys $tap-time $hrm-hold-time k rctl $right-hand-keys)
+  L_ALT (tap-hold-tap-keys $tap-time $hrm-hold-time l ralt $right-hand-keys)
+  SEM_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time ; rmet $right-hand-keys)
+
+  ;; Layer-taps / thumb shortcuts
+  CTL_HYP (tap-hold $tap-time $hold-time lctl (layer-while-held hyper))
+  TAB_FUN (tap-hold $tap-time $hold-time tab (layer-while-held function))
+
+  ;; Shifted symbol aliases for function layer
+  EXLM (multi lsft 1)
+  ATSGN (multi lsft 2)
+  HASH (multi lsft 3)
+  DLR (multi lsft 4)
+  PERC (multi lsft 5)
+  CARET (multi lsft 6)
+  AMPR (multi lsft 7)
+  ASTR (multi lsft 8)
+  LPRN (multi lsft 9)
+  RPRN (multi lsft 0)
+  UNDS (multi lsft -)
+  PLUS (multi lsft =)
+  PIPE (multi lsft \)
+  TILD (multi lsft grv)
+
+  ;; Layer keys
+  FUNCT (layer-while-held function)
+)
+
+;; =========================
+;; Base layer
+;; =========================
+(deflayer base
+  esc      f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12
+           1       2       3       4       5       6       7       8       9       0       -       =       bspc
+  tab      q       w       e       r       t       y       u       i       o       p       [       ]       \
+  @CTL_HYP @A_GUI  @S_ALT  @D_CTL  @F_SFT  g       h       @J_SFT  @K_CTL  @L_ALT  @SEM_GUI apo    ret
+  lsft     z       x       c       v       b       n       m       ,       .       /       rsft
+           @CTL_HYP lalt   @FUNCT          spc                     @TAB_FUN bspc
+)
+
+;; =========================
+;; Hyper layer
+;; =========================
+(deflayer hyper
+  _        _       _       _       _       _       _       _       _       _       _       _       _
+           f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12     _
+  _        _       _       _       _       _       home    pgdn    pgup    end     _       _       _       _
+  _        @A_GUI  @S_ALT  @D_CTL  @F_SFT  _       lft     down    up      rght    _       _       _
+  _        _       _       _       _       _       _       _       _       _       _       _
+           _       _       _               spc                     _       _
+)
+
+;; =========================
+;; Function layer
+;; =========================
+(deflayer function
+  _        brdn    brup    mctl    sls     dtn     dnd     prev    pp      next    mute    voldwn  volu
+           @EXLM   @ATSGN  @HASH   @DLR    @PERC   @CARET  @AMPR   @ASTR   @LPRN   @RPRN   @UNDS   @PLUS   bspc
+  _        f9      f10     f11     f12     _       _       7       8       9       _       @PIPE   @TILD   _
+  _        f5      f6      f7      f8      _       _       4       5       6       _       _       _
+  _        f1      f2      f3      f4      _       0       1       2       3       _       _
+           _       _       _               _                       _       _
+)

@@ -1,0 +1,15 @@
+;; kanata.kbd.example
+;; Same as kanata.kbd, but with device filtering enabled as a sample.
+
+(defcfg
+  ;; Replace with your own IDs from: kanata --list-devices
+  macos-dev-names-include (
+    "0xYOUR_DEVICE_ID_1"
+    "0xYOUR_DEVICE_ID_2"
+  )
+  process-unmapped-keys yes
+)
+
+;; Use the main template body from ./kanata.kbd below this line.
+;; For convenience when publishing, keep this file as a minimal example
+;; and copy/paste the defcfg block above into kanata.kbd.
