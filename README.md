@@ -3,7 +3,7 @@
 A macOS-focused Kanata keymap featuring:
 
 - GACS home-row mods
-- Hyper layer on left Ctrl hold (`tap=Ctrl`, `hold=Hyper`)
+- Hyper layer toggle via left Ctrl double-tap (left Ctrl stays normal Ctrl)
 - Function layer on thumb key
 - Tuned home-row timing for faster hold activation
 

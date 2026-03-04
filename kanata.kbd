@@ -44,6 +44,14 @@
 )
 
 ;; =========================
+;; Virtual keys
+;; =========================
+(defvirtualkeys
+  ;; Sticky Hyper layer (toggle via double-tap on left Ctrl)
+  hyper_mode (layer-while-held hyper)
+)
+
+;; =========================
 ;; Tap trigger key sets
 ;; =========================
 (defvar
@@ -87,7 +95,10 @@
   SEM_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time ; rmet $right-hand-keys)
 
   ;; Layer-taps / thumb shortcuts
-  CTL_HYP (tap-hold $tap-time $hold-time lctl (layer-while-held hyper))
+  ;; Left Ctrl:
+  ;; - Tap/Hold: normal Ctrl (works reliably with Ctrl+Space input source switching)
+  ;; - Double-tap: toggle Hyper layer (sticky until double-tapped again)
+  CTL_HYP (multi lctl (tap-dance-eager $tap-time (XX (on-press toggle-vkey hyper_mode))))
   TAB_FUN (tap-hold $tap-time $hold-time tab (layer-while-held function))
 
   ;; Shifted symbol aliases for function layer
