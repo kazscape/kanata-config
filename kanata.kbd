@@ -46,7 +46,7 @@
 ;; Virtual keys
 ;; =========================
 (defvirtualkeys
-  ;; Sticky Hyper layer (toggle via double-tap on left Ctrl)
+  ;; Hyper layer (momentary; activated while holding after double-tap on left Ctrl)
   hyper_mode (layer-while-held hyper)
 )
 
@@ -96,8 +96,15 @@
   ;; Layer-taps / thumb shortcuts
   ;; Left Ctrl:
   ;; - Tap/Hold: normal Ctrl (works reliably with Ctrl+Space input source switching)
-  ;; - Double-tap: toggle Hyper layer (sticky until double-tapped again)
-  CTL_HYP (multi lctl (tap-dance-eager $tap-time (XX (on-press toggle-vkey hyper_mode))))
+  ;; - Double-tap then hold: Hyper layer is active only while held (not sticky)
+  CTL_HYP (multi lctl (tap-dance-eager $tap-time (
+    XX
+    (multi
+      (release-key lctl)
+      (on-press press-vkey hyper_mode)
+      (on-release release-vkey hyper_mode)
+    )
+  )))
   TAB_FUN (tap-hold $tap-time $hold-time tab (layer-while-held function))
 
   ;; Shifted symbol aliases for function layer
