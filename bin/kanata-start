@@ -7,8 +7,9 @@ set -euo pipefail
 CONFIG_FILE="${KANATA_CONFIG_FILE:-${HOME}/.config/kanata/kanata.kbd}"
 KANATA_BIN="${KANATA_BIN:-/opt/homebrew/bin/kanata}"
 PID_FILE="${KANATA_PID_FILE:-/tmp/kanata.pid}"
-OUT_LOG="${KANATA_OUT_LOG:-/tmp/kanata.out.log}"
-ERR_LOG="${KANATA_ERR_LOG:-/tmp/kanata.err.log}"
+CONFIG_DIR="$(dirname "$CONFIG_FILE")"
+OUT_LOG="${KANATA_OUT_LOG:-${CONFIG_DIR}/kanata.out.log}"
+ERR_LOG="${KANATA_ERR_LOG:-${CONFIG_DIR}/kanata.err.log}"
 
 echo "Starting Kanata..."
 

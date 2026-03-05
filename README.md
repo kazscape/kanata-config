@@ -98,8 +98,8 @@ Environment overrides (optional):
 - `KANATA_CONFIG_FILE` (default: `~/.config/kanata/kanata.kbd`)
 - `KANATA_PID_FILE` (default: `/tmp/kanata.pid`)
 - `KANATA_BIN` (default: `/opt/homebrew/bin/kanata` or `kanata` in PATH)
-- `KANATA_OUT_LOG` (default: `/tmp/kanata.out.log`)
-- `KANATA_ERR_LOG` (default: `/tmp/kanata.err.log`)
+- `KANATA_OUT_LOG` (default: `<config-dir>/kanata.out.log`)
+- `KANATA_ERR_LOG` (default: `<config-dir>/kanata.err.log`)
 
 ## Tuning
 

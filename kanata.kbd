@@ -1,7 +1,7 @@
 ;; kanata.kbd (public template)
 ;; Target environment:
 ;; - macOS
-;; - GACS Home Row Mods
+;; - CAGS Home Row Mods
 ;;
 ;; Notes:
 ;; - This file is device-id agnostic by default.
@@ -78,20 +78,20 @@
 )
 
 ;; =========================
-;; Home Row Mods (GACS)
+;; Home Row Mods (CAGS)
 ;; =========================
 (defalias
   ;; Left hand
-  A_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time a lmet $left-hand-keys)
+  A_CTL (tap-hold-release-keys $tap-time $hrm-hold-time a lctl $left-hand-keys)
   S_ALT (tap-hold-tap-keys $tap-time $hrm-hold-time s lalt $left-hand-keys-romaji)
-  D_CTL (tap-hold-release-keys $tap-time $hrm-hold-time d lctl $left-hand-keys)
+  D_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time d lmet $left-hand-keys)
   F_SFT (tap-hold-tap-keys $tap-time $hrm-hold-time f lsft $left-hand-keys)
 
   ;; Right hand
   J_SFT (tap-hold-tap-keys $tap-time $hrm-hold-time j rsft $right-hand-keys)
-  K_CTL (tap-hold-release-keys $tap-time $hrm-hold-time k rctl $right-hand-keys)
+  K_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time k rmet $right-hand-keys)
   L_ALT (tap-hold-tap-keys $tap-time $hrm-hold-time l ralt $right-hand-keys)
-  SEM_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time ; rmet $right-hand-keys)
+  SEM_CTL (tap-hold-release-keys $tap-time $hrm-hold-time ; rctl $right-hand-keys)
 
   ;; Layer-taps / thumb shortcuts
   ;; Left Ctrl:
@@ -134,7 +134,7 @@
   esc      f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12
            1       2       3       4       5       6       7       8       9       0       -       =       bspc
   tab      q       w       e       r       t       y       u       i       o       p       [       ]       \
-  @CTL_HYP @A_GUI  @S_ALT  @D_CTL  @F_SFT  g       h       @J_SFT  @K_CTL  @L_ALT  @SEM_GUI apo    ret
+  @CTL_HYP @A_CTL  @S_ALT  @D_GUI  @F_SFT  g       h       @J_SFT  @K_GUI  @L_ALT  @SEM_CTL apo    ret
   lsft     z       x       c       v       b       n       m       ,       .       /       rsft
            @CTL_HYP lalt   @FUNCT          spc                     @TAB_FUN bspc
 )
@@ -146,7 +146,7 @@
   _        _       _       _       _       _       _       _       _       _       _       _       _
            f1      f2      f3      f4      f5      f6      f7      f8      f9      f10     f11     f12     _
   _        _       _       _       _       _       _       7       8       9       _       _       _       _
-  _        @A_GUI  @S_ALT  @D_CTL  @F_SFT  _       _       4       5       6       _       _       _
+  _        @A_CTL  @S_ALT  @D_GUI  @F_SFT  _       _       4       5       6       _       _       _
   _        _       _       _       _       _       0       1       2       3       _       _
            _       _       _               spc                     _       _
 )
