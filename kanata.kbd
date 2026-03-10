@@ -40,6 +40,7 @@
   tap-time 250
   hold-time 280
   hrm-hold-time 200
+  a-hrm-hold-time 230
 )
 
 ;; =========================
@@ -82,7 +83,7 @@
 ;; =========================
 (defalias
   ;; Left hand
-  A_CTL (tap-hold-release-keys $tap-time $hrm-hold-time a lctl $left-hand-keys)
+  A_CTL (tap-hold-tap-keys $tap-time $a-hrm-hold-time a lctl $left-hand-keys)
   S_ALT (tap-hold-tap-keys $tap-time $hrm-hold-time s lalt $left-hand-keys-romaji)
   D_GUI (tap-hold-tap-keys $tap-time $hrm-hold-time d lmet $left-hand-keys)
   F_SFT (tap-hold-tap-keys $tap-time $hrm-hold-time f lsft $left-hand-keys)
