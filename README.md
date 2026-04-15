@@ -74,13 +74,19 @@ This repo includes helper commands under `bin/`:
 - `kanata-start`: start Kanata in background (sudo required)
 - `kanata-stop`: stop Kanata
 - `kanata-status`: show status and recent errors
+- `kanata-autostart-install`: install/start launchd service for auto-start at OS boot
+- `kanata-autostart-uninstall`: stop/remove launchd service
+- `kanata-autostart-status`: show launchd auto-start status
 
 Install them into your PATH (example):
 
 ```bash
 mkdir -p ~/.local/bin
-cp -f ./bin/kanata-start ./bin/kanata-stop ./bin/kanata-status ~/.local/bin/
-chmod +x ~/.local/bin/kanata-start ~/.local/bin/kanata-stop ~/.local/bin/kanata-status
+cp -f ./bin/kanata-start ./bin/kanata-stop ./bin/kanata-status \
+   ./bin/kanata-autostart-install ./bin/kanata-autostart-uninstall ./bin/kanata-autostart-status \
+   ~/.local/bin/
+chmod +x ~/.local/bin/kanata-start ~/.local/bin/kanata-stop ~/.local/bin/kanata-status \
+   ~/.local/bin/kanata-autostart-install ~/.local/bin/kanata-autostart-uninstall ~/.local/bin/kanata-autostart-status
 ```
 
 If you prefer to keep them linked to the cloned repo (so updates are automatic), use symlinks instead:
@@ -90,8 +96,41 @@ mkdir -p ~/.local/bin
 ln -sf "${PWD}/bin/kanata-start" ~/.local/bin/kanata-start
 ln -sf "${PWD}/bin/kanata-stop" ~/.local/bin/kanata-stop
 ln -sf "${PWD}/bin/kanata-status" ~/.local/bin/kanata-status
-chmod +x "${PWD}/bin/kanata-start" "${PWD}/bin/kanata-stop" "${PWD}/bin/kanata-status"
+ln -sf "${PWD}/bin/kanata-autostart-install" ~/.local/bin/kanata-autostart-install
+ln -sf "${PWD}/bin/kanata-autostart-uninstall" ~/.local/bin/kanata-autostart-uninstall
+ln -sf "${PWD}/bin/kanata-autostart-status" ~/.local/bin/kanata-autostart-status
+chmod +x "${PWD}/bin/kanata-start" "${PWD}/bin/kanata-stop" "${PWD}/bin/kanata-status" \
+  "${PWD}/bin/kanata-autostart-install" "${PWD}/bin/kanata-autostart-uninstall" "${PWD}/bin/kanata-autostart-status"
 ```
+
+## Auto-start on macOS boot (launchd)
+
+To migrate from manual `kanata-start` to OS boot auto-start:
+
+1. Ensure your config exists at `~/.config/kanata/kanata.kbd` (or set `KANATA_CONFIG_FILE`).
+2. Install and start the launchd service:
+
+   ```bash
+   sudo ~/.local/bin/kanata-autostart-install
+   ```
+
+3. Verify status:
+
+   ```bash
+   ~/.local/bin/kanata-autostart-status
+   ```
+
+4. Reboot once and verify again.
+
+This installs `/Library/LaunchDaemons/com.kazuharu.kanata.plist` and uses `KeepAlive=true`, so Kanata restarts automatically if it exits.
+
+If you need to disable auto-start and return to manual operation:
+
+```bash
+sudo ~/.local/bin/kanata-autostart-uninstall
+```
+
+After uninstalling, you can use `kanata-start` / `kanata-stop` again.
 
 Environment overrides (optional):
 

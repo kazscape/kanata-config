@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LABEL="${KANATA_LAUNCHD_LABEL:-com.kazuharu.kanata}"
+PLIST_PATH="/Library/LaunchDaemons/${LABEL}.plist"
+
+echo "=== Kanata launchd status ==="
+
+echo "Label: ${LABEL}"
+if [ -f "${PLIST_PATH}" ]; then
+  echo "plist: ${PLIST_PATH} (installed)"
+else
+  echo "plist: ${PLIST_PATH} (not installed)"
+fi
+
+echo
+if launchctl print "system/${LABEL}" >/dev/null 2>&1; then
+  echo "launchd: loaded"
+  launchctl print "system/${LABEL}" | grep -E "state =|pid =|last exit code =" || true
+else
+  echo "launchd: not loaded"
+fi
+
+echo
+if pgrep -x kanata >/dev/null 2>&1; then
+  echo "process: running"
+  ps aux | grep -i kanata | grep -v grep | grep -v kanata-autostart-status | sed 's/^/  /'
+else
+  echo "process: not running"
+fi

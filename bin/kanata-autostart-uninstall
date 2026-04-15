@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LABEL="${KANATA_LAUNCHD_LABEL:-com.kazuharu.kanata}"
+PLIST_PATH="/Library/LaunchDaemons/${LABEL}.plist"
+
+if [ "${EUID}" -ne 0 ]; then
+  echo "This command must be run as root."
+  echo "Run: sudo $0"
+  exit 1
+fi
+
+if launchctl print "system/${LABEL}" >/dev/null 2>&1; then
+  launchctl disable "system/${LABEL}" >/dev/null 2>&1 || true
+  launchctl bootout "system/${LABEL}" >/dev/null 2>&1 || true
+fi
+
+if [ -f "${PLIST_PATH}" ]; then
+  rm -f "${PLIST_PATH}"
+fi
+
+echo "Removed launchd service: ${LABEL}"
+echo "If needed, delete old logs under ~/.config/kanata manually."

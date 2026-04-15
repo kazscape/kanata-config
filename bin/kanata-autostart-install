@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LABEL="${KANATA_LAUNCHD_LABEL:-com.kazuharu.kanata}"
+PLIST_PATH="/Library/LaunchDaemons/${LABEL}.plist"
+TARGET_USER="${KANATA_USER:-${SUDO_USER:-$USER}}"
+TARGET_HOME="$(dscl . -read "/Users/${TARGET_USER}" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+KANATA_BIN="${KANATA_BIN:-/opt/homebrew/bin/kanata}"
+
+if [ -z "${TARGET_HOME}" ]; then
+  TARGET_HOME="/Users/${TARGET_USER}"
+fi
+
+CONFIG_FILE="${KANATA_CONFIG_FILE:-${TARGET_HOME}/.config/kanata/kanata.kbd}"
+LOG_DIR="${KANATA_LOG_DIR:-${TARGET_HOME}/.config/kanata}"
+OUT_LOG="${KANATA_OUT_LOG:-${LOG_DIR}/kanata.launchd.out.log}"
+ERR_LOG="${KANATA_ERR_LOG:-${LOG_DIR}/kanata.launchd.err.log}"
+
+if [ "${EUID}" -ne 0 ]; then
+  echo "This command must be run as root."
+  echo "Run: sudo $0"
+  exit 1
+fi
+
+if [ ! -f "${CONFIG_FILE}" ]; then
+  echo "Config file not found: ${CONFIG_FILE}"
+  exit 1
+fi
+
+if [ ! -x "${KANATA_BIN}" ]; then
+  KANATA_BIN="$(command -v kanata 2>/dev/null || true)"
+fi
+
+if [ -z "${KANATA_BIN}" ] || [ ! -x "${KANATA_BIN}" ]; then
+  echo "kanata binary not found. Install kanata first."
+  exit 1
+fi
+
+mkdir -p "${LOG_DIR}"
+
+TMP_PLIST="$(mktemp)"
+cat >"${TMP_PLIST}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>${LABEL}</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>${KANATA_BIN}</string>
+    <string>--cfg</string>
+    <string>${CONFIG_FILE}</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>${OUT_LOG}</string>
+
+  <key>StandardErrorPath</key>
+  <string>${ERR_LOG}</string>
+</dict>
+</plist>
+EOF
+
+install -o root -g wheel -m 644 "${TMP_PLIST}" "${PLIST_PATH}"
+rm -f "${TMP_PLIST}"
+
+if launchctl print "system/${LABEL}" >/dev/null 2>&1; then
+  launchctl bootout "system/${LABEL}" >/dev/null 2>&1 || true
+fi
+
+launchctl bootstrap system "${PLIST_PATH}"
+launchctl enable "system/${LABEL}"
+launchctl kickstart -k "system/${LABEL}"
+
+echo "Installed and started launchd service: ${LABEL}"
+echo "plist: ${PLIST_PATH}"
+echo "config: ${CONFIG_FILE}"
+echo "status: bin/kanata-autostart-status"
