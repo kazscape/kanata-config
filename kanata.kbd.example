@@ -2,7 +2,7 @@
 ;; Same as kanata.kbd, but with device filtering enabled as a sample.
 
 (defcfg
-  ;; Replace with your own IDs from: kanata --list-devices
+  ;; Replace with your own IDs from: kanata --list
   macos-dev-names-include (
     "0xYOUR_DEVICE_ID_1"
     "0xYOUR_DEVICE_ID_2"

@@ -3,6 +3,10 @@ set -euo pipefail
 
 LABEL="${KANATA_LAUNCHD_LABEL:-com.kazuharu.kanata}"
 PLIST_PATH="/Library/LaunchDaemons/${LABEL}.plist"
+ERROR_LOG="${KANATA_ERR_LOG:-${HOME}/.config/kanata/kanata.launchd.err.log}"
+
+CURRENT_PID=""
+PROCESS_START_EPOCH=""
 
 echo "=== Kanata launchd status ==="
 
@@ -25,6 +29,31 @@ echo
 if pgrep -x kanata >/dev/null 2>&1; then
   echo "process: running"
   ps aux | grep -i kanata | grep -v grep | grep -v kanata-autostart-status | sed 's/^/  /'
+  CURRENT_PID="$(pgrep -x kanata | head -n 1)"
 else
   echo "process: not running"
+fi
+
+if [ -n "${CURRENT_PID}" ]; then
+  PROCESS_START_RAW="$(ps -p "${CURRENT_PID}" -o lstart= 2>/dev/null | sed 's/^ *//')"
+  if [ -n "${PROCESS_START_RAW}" ]; then
+    PROCESS_START_EPOCH="$(date -j -f "%a %b %e %T %Y" "${PROCESS_START_RAW}" +%s 2>/dev/null || true)"
+  fi
+fi
+
+echo
+echo "error log: ${ERROR_LOG}"
+if [ -f "${ERROR_LOG}" ] && [ -s "${ERROR_LOG}" ]; then
+  ERROR_LOG_MTIME="$(stat -f %m "${ERROR_LOG}" 2>/dev/null || true)"
+
+  if [ -n "${PROCESS_START_EPOCH}" ] && [ -n "${ERROR_LOG_MTIME}" ] && [ "${ERROR_LOG_MTIME}" -lt "${PROCESS_START_EPOCH}" ]; then
+    echo "status: no new errors since current kanata start"
+    echo "note: file has historical errors only"
+  else
+    echo "status: recent errors exist"
+    echo "last lines:"
+    tail -n 3 "${ERROR_LOG}" | sed 's/^/  /'
+  fi
+else
+  echo "status: empty or missing"
 fi

@@ -53,7 +53,7 @@ This repository is intended to be used by cloning and manually distributing the 
    ```
 
    - `kanata.local.kbd` is listed in `.gitignore`.
-   - Enable `macos-dev-names-include` (get IDs with `kanata --list-devices`) if you want to restrict Kanata to specific keyboards.
+   - Enable `macos-dev-names-include` (get IDs with `kanata --list`) if you want to restrict Kanata to specific keyboards.
 
    Then distribute it to the runtime path:
 
